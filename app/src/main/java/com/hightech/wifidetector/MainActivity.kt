@@ -25,12 +25,20 @@ class MainActivity : AppCompatActivity() {
                     binding.tvMain.text = message
                 }
 
+                override fun onDetectedSuccess() {
+                    // TODO: Login Action or Attend Action
+                }
+
+                override fun onDetectedFailure() {
+                    // Do nothing
+                }
+
             })
             .build()
     }
 
     override fun onResume() {
         super.onResume()
-        wifiDetector.detect()
+        wifiDetector.detect("02:15:b2:00:01:00")
     }
 }

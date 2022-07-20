@@ -30,6 +30,8 @@ class WiFiDetector(
     interface WiFiDetectorDelegate {
         fun onScanSuccess(data: String)
         fun onScanFailure(message: String, data: String? = null)
+        fun onDetectedSuccess()
+        fun onDetectedFailure()
     }
 
     data class Builder(
@@ -90,14 +92,14 @@ class WiFiDetector(
         }
     }
 
-    private fun scanWiFi() {
+    private fun scanWiFi(macAddress: String) {
         val wifiScanReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 val success = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false)
                 if (success) {
-                    scanSuccess(wifiManager)
+                    scanSuccess(macAddress)
                 } else {
-                    scanFailure(wifiManager)
+                    scanFailure()
                 }
             }
         }
@@ -109,31 +111,38 @@ class WiFiDetector(
         val success = wifiManager.startScan()
         if (!success) {
             // scan failure handling
-            scanFailure(wifiManager)
+            scanFailure()
         }
 
     }
 
-    private fun scanSuccess(wifiManager: WifiManager) {
+    private fun scanSuccess(macAddress: String) {
         val results = wifiManager.scanResults
         var wifiIDs = "WiFi Router Device: \n"
+        val macAddressList = mutableListOf<String>()
         for ((id, ap) in results.withIndex()) {
             val wifiID = "SSID=" + ap.SSID + " MAC=" + ap.BSSID
             wifiIDs += "$id. $wifiID \n"
+            macAddressList.add(ap.BSSID)
+        }
+        if (macAddress in macAddressList) {
+            onScanResultListener.onDetectedSuccess()
+        } else {
+            onScanResultListener.onDetectedFailure()
         }
         onScanResultListener.onScanSuccess(wifiIDs)
     }
 
-    private fun scanFailure(wifiManager: WifiManager) {
+    private fun scanFailure() {
         // handle failure: new scan did NOT succeed
         // consider using old scan results: these are the OLD results!
         val results = wifiManager.scanResults
         onScanResultListener.onScanFailure("WiFi scan failed", results.toString())
     }
 
-    fun detect() {
+    fun detect(macAddress: String) {
         requestWiFiPermission() {
-            scanWiFi()
+            scanWiFi(macAddress)
         }
     }
 
