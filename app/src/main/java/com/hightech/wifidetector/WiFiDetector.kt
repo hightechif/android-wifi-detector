@@ -141,7 +141,7 @@ class WiFiDetector(
     }
 
     fun detect(macAddress: String) {
-        requestWiFiPermission() {
+        requestWiFiPermission {
             scanWiFi(macAddress)
         }
     }
