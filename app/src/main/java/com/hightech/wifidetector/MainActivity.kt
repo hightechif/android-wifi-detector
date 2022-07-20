@@ -18,6 +18,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var wifiManager: WifiManager
+    private var wifiIDs = ""
 
     companion object {
         const val REQUEST_CHANGE_WIFI_STATE = 1201
@@ -61,8 +62,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun scanWiFi() {
+        wifiIDs = ""
         val wifiScanReceiver = object : BroadcastReceiver() {
-
             override fun onReceive(context: Context, intent: Intent) {
                 val success = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false)
                 if (success) {
@@ -87,7 +88,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun scanSuccess() {
         val results = wifiManager.scanResults
-        var wifiIDs = ""
         for ((id, ap) in results.withIndex()) {
             val wifiID = "SSID=" + ap.SSID + " MAC=" + ap.BSSID
             Log.d("DEBUG FADHIL", wifiID)
