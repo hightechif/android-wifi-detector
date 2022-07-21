@@ -18,19 +18,19 @@ class MainActivity : AppCompatActivity() {
             .bind(this)
             .setOnScanResultListener(object : WiFiDetector.WiFiDetectorDelegate {
                 override fun onScanSuccess(data: String) {
-                    binding.tvMain.text = data
+                    binding.tvScan.text = data
                 }
 
                 override fun onScanFailure(message: String, data: String?) {
-                    binding.tvMain.text = message
+                    binding.tvScan.text = message
                 }
 
                 override fun onDetectedSuccess() {
-                    // TODO: Login Action or Attend Action
+                    binding.tvDetectStatus.text = getString(R.string.detect_status_positive)
                 }
 
                 override fun onDetectedFailure() {
-                    // Do nothing
+                    binding.tvDetectStatus.text = getString(R.string.detect_status_negative)
                 }
 
             })
@@ -40,6 +40,6 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         wifiDetector.scan()
-        wifiDetector.detect("G15AD",listOf("02:15:b2:00:01:00"))
+        wifiDetector.detect("G15AD", listOf("02:15:b2:00:01:00"))
     }
 }
