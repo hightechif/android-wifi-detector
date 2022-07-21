@@ -23,6 +23,8 @@ class WiFiDetector(
         builder.onScanResultListener!!
     )
 
+    private var isScanOnly: Boolean = true
+
     companion object {
         const val REQUEST_CHANGE_WIFI_STATE = 1201
     }
@@ -37,10 +39,11 @@ class WiFiDetector(
     data class Builder(
         var activity: Activity? = null,
         var wifiManager: WifiManager? = null,
-        var onScanResultListener: WiFiDetectorDelegate? = null
+        var onScanResultListener: WiFiDetectorDelegate? = null,
+        var isScanOnly: Boolean? = null
     ) {
 
-        fun activity(activity: Activity) = apply {
+        fun bind(activity: Activity) = apply {
             this.activity = activity
             wifiManager = activity.baseContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         }
@@ -92,12 +95,12 @@ class WiFiDetector(
         }
     }
 
-    private fun scanWiFi(macAddress: String) {
+    private fun scanWiFi(ssid: String = "", registeredMacAddress: List<String> = listOf()) {
         val wifiScanReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 val success = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false)
                 if (success) {
-                    scanSuccess(macAddress)
+                    scanSuccess(ssid, registeredMacAddress)
                 } else {
                     scanFailure()
                 }
@@ -116,20 +119,31 @@ class WiFiDetector(
 
     }
 
-    private fun scanSuccess(macAddress: String) {
+    private fun scanSuccess(ssid: String, registeredMacAddress: List<String>) {
         val results = wifiManager.scanResults
         var wifiIDs = "WiFi Router Device: \n"
-        val macAddressList = mutableListOf<String>()
+        var detected = false
         for ((id, ap) in results.withIndex()) {
             val wifiID = "SSID=" + ap.SSID + " MAC=" + ap.BSSID
             wifiIDs += "$id. $wifiID \n"
-            macAddressList.add(ap.BSSID)
+
+            if (!isScanOnly) {
+                if (ssid.isNotEmpty() && registeredMacAddress.isNotEmpty()) {
+                    if (ap.SSID == ssid && ap.BSSID in registeredMacAddress) {
+                        detected = true
+                    }
+                }
+            }
         }
-        if (macAddress in macAddressList) {
-            onScanResultListener.onDetectedSuccess()
-        } else {
-            onScanResultListener.onDetectedFailure()
+
+        if (!isScanOnly) {
+            if (detected) {
+                onScanResultListener.onDetectedSuccess()
+            } else {
+                onScanResultListener.onDetectedFailure()
+            }
         }
+
         onScanResultListener.onScanSuccess(wifiIDs)
     }
 
@@ -140,9 +154,17 @@ class WiFiDetector(
         onScanResultListener.onScanFailure("WiFi scan failed", results.toString())
     }
 
-    fun detect(macAddress: String) {
+    fun scan() {
         requestWiFiPermission {
-            scanWiFi(macAddress)
+            isScanOnly = true
+            scanWiFi()
+        }
+    }
+
+    fun detect(ssid: String, registeredMacAddress: List<String>) {
+        requestWiFiPermission {
+            isScanOnly = false
+            scanWiFi(ssid, registeredMacAddress)
         }
     }
 

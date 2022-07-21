@@ -15,7 +15,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         wifiDetector = WiFiDetector.Builder()
-            .activity(this)
+            .bind(this)
             .setOnScanResultListener(object : WiFiDetector.WiFiDetectorDelegate {
                 override fun onScanSuccess(data: String) {
                     binding.tvMain.text = data
@@ -39,6 +39,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        wifiDetector.detect("02:15:b2:00:01:00")
+        wifiDetector.scan()
+        wifiDetector.detect("G15AD",listOf("02:15:b2:00:01:00"))
     }
 }
