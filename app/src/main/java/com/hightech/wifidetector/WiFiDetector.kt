@@ -121,7 +121,7 @@ class WiFiDetector(
 
     private fun scanSuccess(ssid: String, registeredMacAddress: List<String>) {
         val results = wifiManager.scanResults
-        var wifiIDs = "WiFi Router Device: \n"
+        var wifiIDs = "WiFi Devices: \n"
         var detected = false
         for ((id, ap) in results.withIndex()) {
             val wifiID = "SSID=" + ap.SSID + " MAC=" + ap.BSSID
@@ -151,7 +151,7 @@ class WiFiDetector(
         // handle failure: new scan did NOT succeed
         // consider using old scan results: these are the OLD results!
         val results = wifiManager.scanResults
-        onScanResultListener.onScanFailure("WiFi scan failed", results.toString())
+        onScanResultListener.onScanFailure("No WiFi Device", results.toString())
     }
 
     fun scan() {

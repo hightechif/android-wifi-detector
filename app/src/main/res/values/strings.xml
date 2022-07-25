@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">WiFiDetector</string>
-    <string name="scan_title">Scan Result!</string>
-    <string name="detect_title">WiFi Status: </string>
+    <string name="scan_title">Scan result</string>
+    <string name="scan_status_negative">WiFi NOT SCANNED</string>
+    <string name="detect_title">WiFi detection status: </string>
     <string name="detect_status_positive">WiFi DETECTED</string>
     <string name="detect_status_negative">WiFi NOT DETECTED</string>
 </resources>
