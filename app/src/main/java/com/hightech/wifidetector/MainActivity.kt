@@ -63,6 +63,11 @@ class MainActivity : AppCompatActivity() {
         wifiDetector.detect("Elevenia-BOD", listOf("c0:7b:bc:84:08:2d"))
     }
 
+    override fun onPause() {
+        super.onPause()
+        wifiDetector.detect("Elevenia-BOD", listOf("c0:7b:bc:84:08:2d"))
+    }
+
     fun showNotification() {
         val intent = Intent(applicationContext, MainActivity::class.java)
 
