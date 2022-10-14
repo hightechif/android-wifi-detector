@@ -23,9 +23,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WiFiDetector"
         tools:targetApi="31">
-        <service android:name=".WiFiDetectorService"/>
+        <service android:name=".ui.wifi.WiFiDetectorService"/>
         <activity
-            android:name="com.hightech.wifidetector.MainActivity"
+            android:name="com.hightech.wifidetector.ui.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

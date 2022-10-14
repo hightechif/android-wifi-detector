@@ -1,4 +1,4 @@
-package com.hightech.wifidetector
+package com.hightech.wifidetector.ui.wifi
 
 import android.Manifest
 import android.app.Activity
@@ -10,6 +10,8 @@ import android.content.pm.PackageManager
 import android.net.wifi.WifiManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.hightech.wifidetector.domain.model.WiFiDevice
+import com.hightech.wifidetector.domain.model.WiFiDevices
 
 class WiFiDetector(
     private val activity: Activity,
@@ -95,12 +97,12 @@ class WiFiDetector(
         }
     }
 
-    private fun scanWiFi(ssid: String = "", registeredMacAddress: List<String> = listOf()) {
+    private fun scanWiFi(ssid: String = "", registeredWiFi: WiFiDevices = WiFiDevices(mutableListOf())) {
         val wifiScanReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 val success = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false)
                 if (success) {
-                    scanSuccess(ssid, registeredMacAddress)
+                    scanSuccess(ssid, registeredWiFi)
                 } else {
                     scanFailure()
                 }
@@ -119,7 +121,7 @@ class WiFiDetector(
 
     }
 
-    private fun scanSuccess(ssid: String, registeredMacAddress: List<String>) {
+    private fun scanSuccess(ssid: String, registeredWiFis: WiFiDevices) {
         val results = wifiManager.scanResults
         var wifiIDs = "WiFi Devices: \n"
         var detected = false
@@ -128,8 +130,9 @@ class WiFiDetector(
             wifiIDs += "$id. $wifiID \n"
 
             if (!isScanOnly) {
-                if (ssid.isNotEmpty() && registeredMacAddress.isNotEmpty()) {
-                    if (ap.SSID == ssid && ap.BSSID in registeredMacAddress) {
+                if (ssid.isNotEmpty() && registeredWiFis.wifis.isNotEmpty()) {
+                    val registeredMacAddresses = registeredWiFis.getMacAddresses()
+                    if (ap.SSID == ssid && ap.BSSID in registeredMacAddresses) {
                         detected = true
                     }
                 }
@@ -161,10 +164,10 @@ class WiFiDetector(
         }
     }
 
-    fun detect(ssid: String, registeredMacAddress: List<String>) {
+    fun detect(ssid: String, registeredWiFi: WiFiDevices) {
         requestWiFiPermission {
             isScanOnly = false
-            scanWiFi(ssid, registeredMacAddress)
+            scanWiFi(ssid, registeredWiFi)
         }
     }
 
